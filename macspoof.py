@@ -71,6 +71,9 @@ def macspoof():
     return 0
 
 def validate_interface(interface):
+    pattern = "^([0-9a-zA-Z]){3}$"
+    if not match(pattern, interface):
+        return False
     try:
         subprocess.check_call(['ifconfig', '--', interface],
                 stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
