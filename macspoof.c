@@ -16,14 +16,13 @@ int help_message()
     return 0;
 }
 
-void generate_mac(char* new_addr)
+void generate_mac(char* new_addr) // pass in memory so that we aren't returning a local stack variable
 {
-    srand(time(NULL));
-    
-    char hexbytes[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    srand(time(NULL)); // Seed the rng
+    char hexbytes[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // Valid hex digits
     for (int i = 0; i<17; i++)
     {
-        if ((i-2) % 3 != 0)
+        if ((i-2) % 3 != 0) // 2, 5, 8, 11, 14 are where the ':' go
         {
             new_addr[i] = hexbytes[rand() % 16];
         }
@@ -42,7 +41,7 @@ bool validate_interface(char *id)
     }
     regex_t idpat;
     int reti;
-    char* idpattern = "^[a-zA-Z0-9]{3}$";
+    char* idpattern = "^[a-zA-Z0-9]{3}$"; // should be three alphanumeric characters
 
     reti = regcomp(&idpat, idpattern, REG_EXTENDED);
 
@@ -63,7 +62,7 @@ bool validate_interface(char *id)
         char test_command[32] = "ifconfig ";
         strncat(test_command, id, sizeof(test_command)-1 - strlen(test_command));
         strncat(test_command, " >/dev/null", sizeof(test_command)-1 - strlen(test_command));
-        return ! (bool) system(test_command);
+        return ! (bool) system(test_command); // checks if it's actually valid. returns 0 => returns true; returns 1 => returns false
     }
     else
     {
@@ -80,7 +79,7 @@ bool validate_address(char *addr)
     }
     regex_t addrpat;
     int reti;
-    char* addrpattern = "([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})";
+    char* addrpattern = "([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})"; // should match two hex digits followed by a colon five times, and then two more hex digits
     
     reti = regcomp(&addrpat, addrpattern, REG_EXTENDED);
     
@@ -116,7 +115,7 @@ int main(int argc, char **argv)
 
     char c;
     
-    while ((c = getopt(argc, argv, "hVi:m:")) != -1)
+    while ((c = getopt(argc, argv, "hVi:m:")) != -1) // standard getopt procedure
     {
         switch(c)
         {
@@ -167,20 +166,20 @@ int main(int argc, char **argv)
                     return 1;
                 }
             default:
-                abort();
+                abort(); // if we get here, bad things have happened
         }
     }
-    if (geteuid() != 0)
+    if (geteuid() != 0) // we need teh rootz
     {
         fprintf(stderr, "This tools needs to be run as root.\n");
         return 1;
     }
-    if (strlen(id) != 3)
+    if (strlen(id) != 3) // validate_id rejects anything not 3 long
     {
         fprintf(stderr, "No interface supplied.\n");
         return 1;
     }
-    if (strlen(spoof_addr) != 17)
+    if (strlen(spoof_addr) != 17) // validate_address rejects anything not 17 long
     {
         char new_addr[18];
         generate_mac(new_addr);
@@ -188,7 +187,7 @@ int main(int argc, char **argv)
         strncpy(spoof_addr, new_addr, sizeof(spoof_addr)-1);
         spoof_addr[sizeof(spoof_addr)-1] = '\0';
     }
-    char command[64] = "ifconfig ";
+    char command[37] = "ifconfig ";
     strncat(command, id, sizeof(command)-1 - strlen(command));
     strncat(command, " ether ", sizeof(command)-1 - strlen(command));
     strncat(command, spoof_addr, sizeof(command)-1 - strlen(command));
