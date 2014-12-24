@@ -120,8 +120,7 @@ int main(int argc, char **argv)
         switch(c)
         {
             case 104: // h
-                exit(help_message());
-                break;
+                return help_message();
             case 86: // V
                 printf("%s\n", version);
                 return 0;
