@@ -12,7 +12,7 @@ char* version = "macspoof v1.5 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
 int help_message()
 {
     fprintf(stderr, "No full help message defined.\n");
-    printf("-i <id> to specify NIC id of chosen interface, and optionally -m <mac> to specify a colon-delimited (':') mac address to spoof to.");
+    printf("-i <id> to specify NIC id of chosen interface, and optionally -m <mac> to specify a colon-delimited (':') mac address to spoof to.\n");
     return 0;
 }
 
