@@ -2,7 +2,7 @@
 #include<stdio.h> // stderr, printf
 #include<stdlib.h> // srand, rand, fprintf, strncpy, strchr, system, exit
 #include<string.h> // strncat, strlen
-#include <ctype.h> // isprint
+#include<ctype.h> // isprint
 #include<regex.h> // regex (...duh)
 #include<time.h> // time (...also duh)
 #include<stdbool.h> // cuz C doesn't have bools?!
