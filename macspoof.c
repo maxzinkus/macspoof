@@ -7,7 +7,7 @@
 #include<time.h> // time (...also duh)
 #include<stdbool.h> // cuz C doesn't have bools?!
 
-char* version = "macspoof v0.5 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
+char* version = "macspoof v1.5 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
 
 int help_message()
 {
