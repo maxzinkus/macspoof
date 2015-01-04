@@ -106,6 +106,30 @@ bool validate_address(char *addr)
     }
 }
 
+void spoof_interface_mac(char* id, char* spoof_addr) {
+    char command[37] = "ifconfig ";
+    strncat(command, id, sizeof(command) - strlen(command)-1);
+    strncat(command, " ether ", sizeof(command) - strlen(command)-1);
+    strncat(command, spoof_addr, sizeof(command) - strlen(command)-1);
+    system(command);
+}
+
+void bounce_interface(char *id) {
+    char command[13] = "ifconfig ";
+    strncat(command, id, sizeof(command) - strlen(command)-1);
+    char up_command[16];
+    char down_command[18];
+    strncpy(up_command, command, sizeof(up_command)-1);
+    strncpy(down_command, command, sizeof(down_command)-1);
+    strncat(up_command, " up", sizeof(up_command) - strlen(up_command)-1);
+    strncat(down_command, " down", sizeof(down_command) - strlen(down_command)-1);
+    printf("%s\n", down_command);
+    system(down_command);
+    sleep(1);
+    printf("%s\n", up_command);
+    system(up_command);
+}
+
 int main(int argc, char **argv)
 {
     char id[4];
@@ -173,12 +197,12 @@ int main(int argc, char **argv)
         fprintf(stderr, "This tools needs to be run as root.\n");
         return 1;
     }
-    if (strlen(id) != 3) // validate_id rejects anything not 3 long
+    if (strlen(id) != 3) // validate_id rejects anything not 3 long, meaning no interface was supplied
     {
         fprintf(stderr, "No interface supplied.\n");
         return 1;
     }
-    if (strlen(spoof_addr) != 17) // validate_address rejects anything not 17 long
+    if (strlen(spoof_addr) != 17) // validate_address rejects anything not 17 long, meaning no addr was supplied
     {
         char new_addr[18];
         generate_mac(new_addr);
@@ -186,20 +210,8 @@ int main(int argc, char **argv)
         strncpy(spoof_addr, new_addr, sizeof(spoof_addr)-1);
         spoof_addr[sizeof(spoof_addr)-1] = '\0';
     }
-    char command[37] = "ifconfig ";
-    strncat(command, id, sizeof(command)-1 - strlen(command));
-    strncat(command, " ether ", sizeof(command)-1 - strlen(command));
-    strncat(command, spoof_addr, sizeof(command)-1 - strlen(command));
-    system(command);
+    spoof_interface_mac(id, spoof_addr);
     sleep(2);
-    strncpy(command, "ifconfig ", sizeof(command)-1);
-    strncat(command, id, sizeof(command)-1 - strlen(command));
-    strncat(command, " down", sizeof(command)-1 - strlen(command));
-    system(command);
-    sleep(1);
-    strncpy(command, "ifconfig ", sizeof(command)-1);
-    strncat(command, id, sizeof(command)-1 - strlen(command));
-    strncat(command, " up", sizeof(command)-1 - strlen(command));
-    system(command);
+    bounce_interface(id);
     return 0;
 }
