@@ -1,17 +1,16 @@
-#include<unistd.h> // geteuid, getopt, sleep
-#include<stdio.h> // stderr, printf
-#include<stdlib.h> // srand, rand, fprintf, strncpy, strchr, system, exit
-#include<string.h> // strncat, strlen
-#include<ctype.h> // isprint
-#include<regex.h> // regex (...duh)
-#include<time.h> // time (...also duh)
-#include<stdbool.h> // cuz C doesn't have bools?!
+#include <unistd.h> // geteuid, getopt, sleep
+#include <stdio.h> // stderr, printf
+#include <stdlib.h> // srand, rand, fprintf, strncpy, strchr, system, exit
+#include <string.h> // strncat, strlen
+#include <ctype.h> // isprint
+#include <regex.h> // regex (...duh)
+#include <time.h> // time (...also duh)
+#include <stdbool.h> // cuz C doesn't have bools?!
 
 char* version = "macspoof v1.5 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
 
 int help_message()
 {
-    fprintf(stderr, "No full help message defined.\n");
     printf("-i <id> to specify NIC id of chosen interface, and optionally -m <mac> to specify a colon-delimited (':') mac address to spoof to.\n");
     return 0;
 }
@@ -20,7 +19,7 @@ void generate_mac(char* new_addr) // pass in memory so that we aren't returning 
 {
     srand(time(NULL)); // Seed the rng
     char hexbytes[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // Valid hex digits
-    for (int i = 0; i<17; i++)
+    for (int i = 0; i < 17; i++)
     {
         if ((i-2) % 3 != 0) // 2, 5, 8, 11, 14 are where the ':' go
         {
