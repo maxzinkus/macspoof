@@ -19,7 +19,8 @@ void generate_mac(char* new_addr) // pass in memory so that we aren't returning 
 {
     srand(time(NULL)); // Seed the rng
     char hexbytes[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // Valid hex digits
-    for (int i = 0; i < 17; i++)
+	int i;
+    for (i = 0; i < 17; i++)
     {
         if ((i-2) % 3 != 0) // 2, 5, 8, 11, 14 are where the ':' go
         {
