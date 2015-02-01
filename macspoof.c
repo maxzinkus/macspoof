@@ -142,12 +142,12 @@ int main(int argc, char **argv)
     {
         switch(c)
         {
-            case 104: // h
+            case 'h':
                 return help_message();
-            case 86: // V
+            case 'V':
                 printf("%s\n", version);
                 return 0;
-            case 105: // i
+            case 'i':
                 if (validate_interface(optarg))
                 {
                     strncpy(id, optarg, sizeof(id)-1);
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
                     return 1;
                 }
                 break;
-            case 109: // m
+            case 'm':
                 if (validate_address(optarg))
                 {
                     strncpy(spoof_addr, optarg, sizeof(spoof_addr)-1);
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
                     return 1;
                 }
                 break;
-            case 63: // ?
+            case '?':
                 if (optopt == 'i' || optopt == 'm')
                 {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
