@@ -5,38 +5,30 @@
 #include <ctype.h> // isprint
 #include <regex.h> // regex (...duh)
 #include <time.h> // time (...also duh)
-#include <stdbool.h> // cuz C doesn't have bools?!
+#include <stdbool.h>
 
-char* version = "macspoof v1.5 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
+char* version = "macspoof v1.6 (alpha) by Max Zinkus <maxzinkus@gmail.com>";
 
-int help_message()
-{
+void help_message() {
     printf("-i <id> to specify NIC id of chosen interface, and optionally -m <mac> to specify a colon-delimited (':') mac address to spoof to.\n");
-    return 0;
 }
 
-void generate_mac(char* new_addr) // pass in memory so that we aren't returning a local stack variable
-{
+void generate_mac(char* new_addr) {
     srand(time(NULL)); // Seed the rng
     char hexbytes[17] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'}; // Valid hex digits
-	int i;
-    for (i = 0; i < 17; i++)
-    {
-        if ((i-2) % 3 != 0) // 2, 5, 8, 11, 14 are where the ':' go
-        {
+    int i;
+    for (i = 0; i < 17; i++) {
+        if ((i-2) % 3 != 0) {
             new_addr[i] = hexbytes[rand() % 16];
         }
-        else
-        {
+        else {
             new_addr[i] = ':';
         }
     }
 }
 
-bool validate_interface(char *id)
-{
-    if (strlen(id) != 3)
-    {
+bool validate_interface(char *id) {
+    if (strlen(id) != 3) {
         return false;
     }
     regex_t idpat;
@@ -45,36 +37,30 @@ bool validate_interface(char *id)
 
     reti = regcomp(&idpat, idpattern, REG_EXTENDED);
 
-    if (reti)
-    {
+    if (reti) {
         fprintf(stderr, "Could not compile regex.\n");
         exit(1);
     }
 
     reti = regexec(&idpat, id, 0, NULL, 0);
 
-    if (reti == REG_NOMATCH)
-    {
+    if (reti == REG_NOMATCH) {
         return false;
     }
-    else if (!reti)
-    {
+    else if (!reti) {
         char test_command[32] = "ifconfig ";
         strncat(test_command, id, sizeof(test_command)-1 - strlen(test_command));
         strncat(test_command, " >/dev/null", sizeof(test_command)-1 - strlen(test_command));
         return ! (bool) system(test_command); // checks if it's actually valid. returns 0 => returns true; returns 1 => returns false
     }
-    else
-    {
+    else {
         fprintf(stderr, "Regex matching error.\n");
         exit(1);
     }
 }
 
-bool validate_address(char *addr)
-{
-    if (strlen(addr) != 17)
-    {
+bool validate_address(char *addr) {
+    if (strlen(addr) != 17) {
         return false;
     }
     regex_t addrpat;
@@ -83,24 +69,20 @@ bool validate_address(char *addr)
     
     reti = regcomp(&addrpat, addrpattern, REG_EXTENDED);
     
-    if (reti)
-    {
+    if (reti) {
         fprintf(stderr, "Could not compile regex.\n");
         exit(1);
     }
     
     reti = regexec(&addrpat, addr, 0, NULL, 0);
     
-    if (!reti)
-    {
+    if (!reti) {
         return true;
     } 
-    else if (reti == REG_NOMATCH)
-    {
+    else if (reti == REG_NOMATCH) {
         return false;
     }
-    else
-    {
+    else {
         fprintf(stderr, "Regex matching error.\n");
         exit(1);
     }
@@ -130,8 +112,7 @@ void bounce_interface(char *id) {
     system(up_command);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     char id[4];
     char spoof_addr[18];
 
@@ -139,52 +120,44 @@ int main(int argc, char **argv)
 
     char c;
     
-    while ((c = getopt(argc, argv, "hVi:m:")) != -1) // standard getopt procedure
-    {
-        switch(c)
-        {
+    while ((c = getopt(argc, argv, "hVi:m:")) != -1) {
+        switch(c) {
             case 'h':
-                return help_message();
+                help_message();
+                return 0;
             case 'V':
                 printf("%s\n", version);
                 return 0;
             case 'i':
-                if (validate_interface(optarg))
-                {
+                if (validate_interface(optarg)) {
                     strncpy(id, optarg, sizeof(id)-1);
                     id[sizeof(id)-1] = '\0';
                 }
-                else
-                {
+                else {
                     fprintf(stderr, "Invalid interface specified after -i.\n");
                     return 1;
                 }
                 break;
             case 'm':
-                if (validate_address(optarg))
-                {
+                if (validate_address(optarg)) {
                     strncpy(spoof_addr, optarg, sizeof(spoof_addr)-1);
                     spoof_addr[sizeof(spoof_addr)-1] = '\0';
                 }
-                else
-                {
+                else {
                     fprintf(stderr, "Invalid address specified after -m.\n");
                     return 1;
                 }
                 break;
             case '?':
-                if (optopt == 'i' || optopt == 'm')
-                {
+                if (optopt == 'i' || optopt == 'm') {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
                     return 1;
                 }
-                else if (isprint(optopt))
-                {
+                else if (isprint(optopt)) {
                     fprintf(stderr, "Unknown option -%c.\n", optopt);
                     return 1;
                 }
-                else
-                {
+                else {
                     fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
                     return 1;
                 }
@@ -192,18 +165,15 @@ int main(int argc, char **argv)
                 abort(); // if we get here, bad things have happened
         }
     }
-    if (geteuid() != 0) // we need teh rootz
-    {
+    if (geteuid() != 0) {
         fprintf(stderr, "This tools needs to be run as root.\n");
         return 1;
     }
-    if (strlen(id) != 3) // validate_id rejects anything not 3 long, meaning no interface was supplied
-    {
+    if (strlen(id) != 3) { // validate_id rejects anything not 3 long, meaning no interface was supplied
         fprintf(stderr, "No interface supplied.\n");
         return 1;
     }
-    if (strlen(spoof_addr) != 17) // validate_address rejects anything not 17 long, meaning no addr was supplied
-    {
+    if (strlen(spoof_addr) != 17) { // validate_address rejects anything not 17 long, meaning no addr was supplied
         char new_addr[18];
         generate_mac(new_addr);
         new_addr[sizeof(new_addr)-1] = '\0';
@@ -213,5 +183,6 @@ int main(int argc, char **argv)
     spoof_interface_mac(id, spoof_addr);
     sleep(2);
     bounce_interface(id);
+    sleep(1);
     return 0;
 }
