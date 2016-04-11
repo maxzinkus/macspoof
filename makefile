@@ -1,2 +1,2 @@
 make:
-	gcc -O2 macspoof.c -o macspoof
+	gcc -Wall -Wpedantic -O3 macspoof.c -o macspoof
